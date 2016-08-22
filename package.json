@@ -1,0 +1,21 @@
+{
+  "name": "aotu.js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@tencent/auto-request-factory": "^1.0.33",
+    "co": "^4.6.0",
+    "debug": "^2.2.0",
+    "extend": "^3.0.0",
+    "process.hrtime": "^1.0.1"
+  },
+  "devDependencies": {
+    "ava": "^0.16.0"
+  }
+}
