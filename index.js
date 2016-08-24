@@ -54,7 +54,7 @@ module.exports = function (config, options) {
 
   createHook(options.onServiceCreateEnd, null)();
 
-  return function (query, cookie, body) {
+  return function (fetchContext) {
     var self = this;
 
     return co(function *() {
@@ -69,14 +69,7 @@ module.exports = function (config, options) {
       });
 
       servelog('start');
-      const contextParam = {
-        QUERY: query,
-        COOKIE: cookie,
-        BODY: body,
-        REQ: {
-          ip: ''
-        }
-      };
+      const contextParam = fetchContext || {};
 
       // copy the staticJSON
       var renderData = extend({}, contextParam, _staticJSON);
