@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node_modules/.bin/ava test/**/*.test.js"
+    "test": "node_modules/.bin/nyc node_modules/.bin/ava test/**/*.test.js"
   },
   "author": "",
   "license": "ISC",
@@ -16,6 +16,20 @@
     "process.hrtime": "^1.0.1"
   },
   "devDependencies": {
-    "ava": "^0.16.0"
+    "ava": "^0.16.0",
+    "nyc": "^8.3.0"
+  },
+
+  "babel": {
+    "presets": ["es2015"],
+    "plugins": ["transform-runtime"],
+    "env": {
+      "development": {
+        "sourceMaps": "inline"
+      }
+    }
+  },
+  "ava": {
+    "require": ["babel-core/register"]
   }
 }
