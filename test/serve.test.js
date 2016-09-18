@@ -167,7 +167,7 @@ test('static data', async function () {
 		data: {
 			'ret.json': {
 				type: "static",
-				value: '{"hehe": 1}'
+				value: {"hehe": 1}
 			},
 			'ret.request': {
 				type: "request",

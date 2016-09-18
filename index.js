@@ -35,11 +35,10 @@ module.exports = function (config, options) {
 
 		} else if (dataSource.type == 'static') {
 			// static json, put it into result
-			var value = tryParseJson(dataSource.value);
 			// _staticJSON[key] = value;
 
 			// put the static data into result
-			createInjector(key, _staticJSON)(value);
+			createInjector(key, _staticJSON)(dataSource.value);
 
 		} else {
 			throw new Error('must indicate a type for datasource');
@@ -147,20 +146,4 @@ function createHook(fn, context) {
 }
 
 function noop() {
-}
-
-function tryParseJson(data) {
-	if (
-		typeof data == 'string' &&
-		(
-			(data[0] == "{" && data[data.length - 1] == "}") ||
-			(data[0] == "[" && data[data.length - 1] == "]")
-		)
-	) {
-		try {
-			data = JSON.parse(data);
-		} catch (e) {
-		}
-	}
-	return data;
 }
