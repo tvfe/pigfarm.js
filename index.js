@@ -11,7 +11,7 @@ var fetchersFactory = require("./lib/fetchers");
 var createlog = nodedebug("auto-creating");
 var servelog = nodedebug("auto-serving");
 
-module.exports = function (config, options) {
+var exportee = module.exports = function (config, options) {
 	options = options || {};
 
 	assert.equal(typeof (config.data = config.data || {}), 'object', 'please give aotu.js a datasource map');
@@ -133,6 +133,10 @@ module.exports = function (config, options) {
 			return Promise.reject(e);
 		})
 	}
+};
+
+exportee.useFetcher = function (autoRequest) {
+    fetchersFactory.useFetcher.apply(this, arguments);
 };
 
 function createHook(fn, context) {

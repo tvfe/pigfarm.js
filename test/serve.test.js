@@ -16,6 +16,7 @@ requestFactory.registerRequestor('error', function (cfg, callback) {
 		callback(new Error(cfg.url));
 	})
 });
+aotu.useFetcher(requestFactory);
 
 test('render error', async function () {
 	try {
