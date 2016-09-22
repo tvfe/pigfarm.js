@@ -71,7 +71,7 @@ var exportee = module.exports = function (config, options) {
 			const contextParam = fetchContext || {};
 
 			// copy the staticJSON
-			var renderData = extend({}, contextParam, _staticJSON);
+			var renderData = extend(contextParam, JSON.parse(JSON.stringify(_staticJSON)));
 
 			var requestTree = {};
 
