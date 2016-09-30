@@ -33,3 +33,17 @@ test('render error', async function () {
 		assert(e.wrapper.indexOf('4 > |         <div>${undef.hehe}</div>') != -1);
 	}
 });
+
+test('default render', async function () {
+	var result = await aotu({
+		data: {
+			data: {
+				type: "static",
+				value: {
+					url: "what://ever"
+				}
+			}
+		}
+	})();
+	assert.equal(result.data.url, 'what://ever')
+});
