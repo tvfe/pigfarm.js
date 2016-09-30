@@ -4,18 +4,19 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node_modules/.bin/nyc node_modules/.bin/ava test/**/*.test.js"
+    "test": "node_modules/.bin/nyc node_modules/.bin/ava test/**/*.test.js --timeout 5000"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@tencent/auto-request-factory": "^1.0.33",
+    "@tencent/aotu-fetch": "^1.0.0",
     "co": "^4.6.0",
     "debug": "^2.2.0",
     "extend": "^3.0.0",
     "process.hrtime": "^1.0.1"
   },
   "devDependencies": {
+    "@tencent/auto-request-factory": "^1.0.34",
     "ava": "^0.16.0",
     "nyc": "^8.3.0"
   },

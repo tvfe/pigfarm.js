@@ -1,0 +1,49 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'd:\\nodejs\\node.exe',
+1 verbose cli   'd:\\nodejs\\node_modules\\npm\\bin\\npm-cli.js',
+1 verbose cli   'version',
+1 verbose cli   'patch' ]
+2 info using npm@2.14.7
+3 info using node@v4.2.1
+4 info git [ 'status', '--porcelain' ]
+5 info preversion @tencent/aotu.js@1.0.4
+6 verbose version.write data { name: '@tencent/aotu.js',
+6 verbose version.write   version: '1.0.4',
+6 verbose version.write   description: '',
+6 verbose version.write   main: 'index.js',
+6 verbose version.write   scripts: { test: 'node_modules/.bin/nyc node_modules/.bin/ava test/**/*.test.js' },
+6 verbose version.write   author: '',
+6 verbose version.write   license: 'ISC',
+6 verbose version.write   dependencies:
+6 verbose version.write    { '@tencent/auto-request-factory': '^1.0.33',
+6 verbose version.write      co: '^4.6.0',
+6 verbose version.write      debug: '^2.2.0',
+6 verbose version.write      extend: '^3.0.0',
+6 verbose version.write      'process.hrtime': '^1.0.1' },
+6 verbose version.write   devDependencies: { ava: '^0.16.0', nyc: '^8.3.0' },
+6 verbose version.write   babel:
+6 verbose version.write    { presets: [ 'es2015' ],
+6 verbose version.write      plugins: [ 'transform-runtime' ],
+6 verbose version.write      env: { development: [Object] } },
+6 verbose version.write   ava: { require: [ 'babel-core/register' ] } } to package.json
+7 info version @tencent/aotu.js@1.0.4
+8 info git [ 'add', 'package.json' ]
+9 verbose stack Error: Command failed: git -c core.longpaths=true add package.json
+9 verbose stack fatal: pathspec 'package.json' did not match any files
+9 verbose stack
+9 verbose stack     at ChildProcess.exithandler (child_process.js:203:12)
+9 verbose stack     at emitTwo (events.js:87:13)
+9 verbose stack     at ChildProcess.emit (events.js:172:7)
+9 verbose stack     at maybeClose (internal/child_process.js:818:16)
+9 verbose stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:211:5)
+10 verbose cwd S:\autonode\aotu.js\test
+11 error Windows_NT 6.1.7601
+12 error argv "d:\\nodejs\\node.exe" "d:\\nodejs\\node_modules\\npm\\bin\\npm-cli.js" "version" "patch"
+13 error node v4.2.1
+14 error npm  v2.14.7
+15 error code 128
+16 error Command failed: git -c core.longpaths=true add package.json
+16 error fatal: pathspec 'package.json' did not match any files
+17 error If you need help, you may report this error at:
+17 error     <https://github.com/npm/npm/issues>
+18 verbose exit [ 1, true ]

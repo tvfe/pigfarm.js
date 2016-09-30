@@ -16,6 +16,7 @@ var exportee = module.exports = function (config, options) {
 
 	assert.equal(typeof (config.data = config.data || {}), 'object', 'please give aotu.js a datasource map');
 	assert.equal(typeof config.render, 'function', 'please give aotu.js a render function');
+	config.render = config.render || (d=>d);
 
 	// static data
 	var _staticJSON = {};

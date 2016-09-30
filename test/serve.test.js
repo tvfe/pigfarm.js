@@ -2,8 +2,8 @@
 var test = require("ava").test;
 var assert = require("assert");
 var aotu = require("..");
-var requestFactory = require("@tencent/auto-request-factory");
 var extend = require("extend");
+var requestFactory = require("@tencent/aotu-fetch");
 var templateCompiler = require("./es6templateCompiler");
 
 requestFactory.registerRequestor('default', function (cfg, callback) {
@@ -16,7 +16,6 @@ requestFactory.registerRequestor('error', function (cfg, callback) {
 		callback(new Error(cfg.url));
 	})
 });
-aotu.useFetcher(requestFactory);
 
 test('render error', async function () {
 	try {
