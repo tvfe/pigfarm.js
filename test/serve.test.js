@@ -3,7 +3,7 @@ var test = require("ava").test;
 var assert = require("assert");
 var aotu = require("..");
 var extend = require("extend");
-var requestFactory = require("@tencent/aotu-fetch");
+var requestFactory = require("pigfarm-fetcher");
 var templateCompiler = require("./es6templateCompiler");
 
 requestFactory.registerRequestor('default', function (cfg, callback) {

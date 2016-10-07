@@ -1,6 +1,6 @@
 {
   "name": "pigfarm.js",
-  "version": "1.0.8",
+  "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@tencent/aotu-fetch": "^1.0.0",
+    "pigfarm-fetcher": "^1.0.0",
     "co": "^4.6.0",
     "debug": "^2.2.0",
     "extend": "^3.0.0",
