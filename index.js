@@ -10,63 +10,22 @@ var fetchersFactory = require("./lib/fetchers");
 
 var createlog = nodedebug("auto-creating");
 var servelog = nodedebug("auto-serving");
+var EventEmitter = require("events");
 
-var exportee = module.exports = function (config, options) {
-	options = options || {};
+var exportee = module.exports = function (config) {
 
 	assert.equal(typeof (config.data = config.data || {}), 'object', 'please give aotu.js a datasource map');
 	config.render = config.render || (d=>JSON.stringify(d));
 
 	// static data
 	var _staticJSON = {};
-
-	createlog('reading data sources');
-	createHook(options.onServiceCreateStart, null)();
-
 	// read data sources
 	var fetchers = {};
-	Object.keys(config.data).forEach(key=> {
-		var dataSource = config.data[key];
 
-		if (dataSource.type == 'request') {
-			// request, fetch them when user's requests come in
-			// if this config is request, create fetchers
-			fetchers[key] = dataSource.action;
-
-		} else if (dataSource.type == 'static') {
-			// static json, put it into result
-			// _staticJSON[key] = value;
-
-			// put the static data into result
-			createInjector(key, _staticJSON)(dataSource.value);
-
-		} else {
-			throw new Error('must indicate a type for datasource');
-
-		}
-	});
-	fetchers = fetchersFactory(fetchers);
-	createlog('readed data sources, static:', _staticJSON);
-
-	// var render = Renderer(config.template, config.helper);
 	var render = config.render;
 
-	createHook(options.onServiceCreateEnd, null)();
-
-	return function (fetchContext) {
-		var self = this;
-
+	var exportee = function (fetchContext) {
 		return co(function *() {
-			var hooks = {};
-			[
-				'onFetchStart',
-				'onFetchEnd',
-				'onRenderStart',
-				'onRenderEnd'
-			].forEach(hookname=> {
-				hooks[hookname] = createHook(options[hookname], self);
-			});
-
 			servelog('start');
 			const contextParam = fetchContext || {};
 
@@ -76,7 +35,7 @@ var exportee = module.exports = function (config, options) {
 			var requestTree = {};
 
 			servelog('fetch start');
-			hooks['onFetchStart']();
+			exportee.emit('fetchstart', this);
 
 			// make the dependency tree for all requests
 			Object.keys(fetchers).forEach(key=> {
@@ -99,7 +58,7 @@ var exportee = module.exports = function (config, options) {
 			var fetched = yield runDependenciesTree.call(this, requestTree);
 
 			servelog('fetch end');
-			hooks['onFetchEnd']();
+			exportee.emit('fetchend', this);
 
 			Object.keys(fetched).forEach(key=> {
 				let result = fetched[key];
@@ -112,7 +71,7 @@ var exportee = module.exports = function (config, options) {
 
 				}
 			});
-			hooks['onRenderStart']();
+			exportee.emit('renderstart', this);
 			// render
 			servelog('renderData keys', Object.keys(renderData));
 
@@ -123,7 +82,7 @@ var exportee = module.exports = function (config, options) {
 				e.status = e.status || 555;
 				throw e;
 			}
-			hooks['onRenderEnd']();
+			exportee.emit('renderend', this);
 
 			return html;
 
@@ -132,11 +91,43 @@ var exportee = module.exports = function (config, options) {
 
 			return Promise.reject(e);
 		})
-	}
+	};
+
+	extend(exportee, EventEmitter.prototype);
+
+	createlog('reading data sources');
+	exportee.emit('createstart');
+
+	Object.keys(config.data).forEach(key=> {
+		var dataSource = config.data[key];
+
+		if (dataSource.type == 'request') {
+			// request, fetch them when user's requests come in
+			// if this config is request, create fetchers
+			fetchers[key] = dataSource.action;
+
+		} else if (dataSource.type == 'static') {
+			// static json, put it into result
+			// _staticJSON[key] = value;
+
+			// put the static data into result
+			createInjector(key, _staticJSON)(dataSource.value);
+
+		} else {
+			throw new Error('must indicate a type for datasource');
+
+		}
+	});
+	fetchers = fetchersFactory(fetchers);
+
+	createlog('readed data sources, static:', _staticJSON);
+	exportee.emit('createend');
+
+	return exportee;
 };
 
 exportee.useFetcher = function (autoRequest) {
-    fetchersFactory.useFetcher.apply(this, arguments);
+	fetchersFactory.useFetcher.apply(this, arguments);
 };
 
 function createHook(fn, context) {

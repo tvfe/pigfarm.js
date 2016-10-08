@@ -57,7 +57,7 @@ test('run helper', async function () {
 });
 test('requestEnd hook', async function () {
 	return new Promise(function (resolve, reject) {
-		aotu({
+		var service = aotu({
 			render: ()=> '<div></div>',
 			data: {
 				auto: {
@@ -71,28 +71,28 @@ test('requestEnd hook', async function () {
 					}
 				}
 			}
-		}, {
-			onFetchStart: function () {
-				this.autonodeContext = this.autonodeContext || {};
-				this.autonodeContext._timer = Date.now();
-			},
-			onRenderStart: function () {
-				throw new Error('hehe');
-			},
-			onRenderEnd: function () {
-				try {
-					assert(!!this.autonodeContext._timer, 'hook changing context fail');
-					// console.log(this.autonodeContext.timeline);
-					// for (var data of this.autonodeContext.timeline) {
-					// 	assert(Math.abs(data.duration.split('|')[1] / 1000 - 200) < 10);
-					// 	assert.equal(data.name, 'auto');
-					// }
-				} catch (e) {
-					return reject(e)
-				}
-				resolve()
+		});
+		service.on('fetchstart', function (context) {
+			context.autonodeContext = context.autonodeContext || {};
+			context.autonodeContext._timer = Date.now();
+		});
+		service.on('renderstart', function () {
+			throw new Error('hehe');
+		});
+		service.on('renderend', function () {
+			try {
+				assert(!!this.autonodeContext._timer, 'hook changing context fail');
+				// console.log(this.autonodeContext.timeline);
+				// for (var data of this.autonodeContext.timeline) {
+				// 	assert(Math.abs(data.duration.split('|')[1] / 1000 - 200) < 10);
+				// 	assert.equal(data.name, 'auto');
+				// }
+			} catch (e) {
+				return reject(e)
 			}
-		}).call({});
+			resolve()
+		});
+		service.call({});
 	})
 });
 test('dependencies', async function () {
