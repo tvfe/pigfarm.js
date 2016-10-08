@@ -37,3 +37,14 @@ var app = pigfarm({
 console.log(await app()) // 输出 'eat cabbage'
 ```
 其中，type=request的数据源，action内的配置即[pigfarm-fetcher](https://github.com/tvfe/pigfarm-fetcher)的配置方式。这让你可以获取任意的数据。
+
+## 事件
+```
+app.on('fetchstart', function(koacontext) {
+
+})
+```
+1. fetchstart
+2. fetchend
+3. renderstart
+4. renderend
