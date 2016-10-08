@@ -19,23 +19,5 @@
     "@tencent/auto-request-factory": "^1.0.34",
     "ava": "^0.16.0",
     "nyc": "^8.3.0"
-  },
-  "babel": {
-    "presets": [
-      "es2015"
-    ],
-    "plugins": [
-      "transform-runtime"
-    ],
-    "env": {
-      "development": {
-        "sourceMaps": "inline"
-      }
-    }
-  },
-  "ava": {
-    "require": [
-      "babel-core/register"
-    ]
   }
 }
