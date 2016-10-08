@@ -35,7 +35,7 @@ var exportee = module.exports = function (config) {
 			var requestTree = {};
 
 			servelog('fetch start');
-			exportee.emit('fetchstart', this);
+			emitEvent(exportee, ['fetchstart', this]);
 
 			// make the dependency tree for all requests
 			Object.keys(fetchers).forEach(key=> {
@@ -58,7 +58,7 @@ var exportee = module.exports = function (config) {
 			var fetched = yield runDependenciesTree.call(this, requestTree);
 
 			servelog('fetch end');
-			exportee.emit('fetchend', this);
+			emitEvent(exportee, ['fetchend', this]);
 
 			Object.keys(fetched).forEach(key=> {
 				let result = fetched[key];
@@ -71,7 +71,7 @@ var exportee = module.exports = function (config) {
 
 				}
 			});
-			exportee.emit('renderstart', this);
+			emitEvent(exportee, ['renderstart', this]);
 			// render
 			servelog('renderData keys', Object.keys(renderData));
 
@@ -82,7 +82,7 @@ var exportee = module.exports = function (config) {
 				e.status = e.status || 555;
 				throw e;
 			}
-			exportee.emit('renderend', this);
+			emitEvent(exportee, ['renderend', this]);
 
 			return html;
 
@@ -96,7 +96,6 @@ var exportee = module.exports = function (config) {
 	extend(exportee, EventEmitter.prototype);
 
 	createlog('reading data sources');
-	exportee.emit('createstart');
 
 	Object.keys(config.data).forEach(key=> {
 		var dataSource = config.data[key];
@@ -121,7 +120,6 @@ var exportee = module.exports = function (config) {
 	fetchers = fetchersFactory(fetchers);
 
 	createlog('readed data sources, static:', _staticJSON);
-	exportee.emit('createend');
 
 	return exportee;
 };
@@ -130,14 +128,10 @@ exportee.useFetcher = function (autoRequest) {
 	fetchersFactory.useFetcher.apply(this, arguments);
 };
 
-function createHook(fn, context) {
-
-	return function () {
-		try {
-			fn && fn.apply(context, arguments);
-		} catch (e) {
-		}
-	};
+function emitEvent(emitter, args) {
+	try {
+		emitter.emit.apply(emitter, args);
+	} catch(e) {}
 }
 
 function noop() {
