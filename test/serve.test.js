@@ -1,7 +1,7 @@
 'use strict';
 var test = require("ava").test;
 var assert = require("assert");
-var aotu = require("..");
+var pigfarm = require("..");
 var extend = require("extend");
 var requestFactory = require("pigfarm-fetcher");
 var templateCompiler = require("./es6templateCompiler");
@@ -19,7 +19,7 @@ requestFactory.registerRequestor('error', function (cfg, callback) {
 
 test('render error', async function () {
 	try {
-		await aotu({
+		await pigfarm({
 			render: templateCompiler('<html>\n' +
 				'<head></head>\n' +
 				'    <body>\n' +
@@ -34,7 +34,7 @@ test('render error', async function () {
 	}
 });
 test('run helper', async function () {
-	var result = await aotu({
+	var result = await pigfarm({
 		render: templateCompiler('${_.json(auto)}', {
 			json: function (data) {
 				return JSON.stringify(data);
@@ -56,8 +56,9 @@ test('run helper', async function () {
 	assert.equal(result, '{"testdata":true,"wocao":1}');
 });
 test('requestEnd hook', async function () {
+	let through = 0;
 	return new Promise(function (resolve, reject) {
-		aotu({
+		var service = pigfarm({
 			render: ()=> '<div></div>',
 			data: {
 				auto: {
@@ -71,32 +72,36 @@ test('requestEnd hook', async function () {
 					}
 				}
 			}
-		}, {
-			onFetchStart: function () {
-				this.autonodeContext = this.autonodeContext || {};
-				this.autonodeContext._timer = Date.now();
-			},
-			onRenderStart: function () {
-				throw new Error('hehe');
-			},
-			onRenderEnd: function () {
-				try {
-					assert(!!this.autonodeContext._timer, 'hook changing context fail');
-					// console.log(this.autonodeContext.timeline);
-					// for (var data of this.autonodeContext.timeline) {
-					// 	assert(Math.abs(data.duration.split('|')[1] / 1000 - 200) < 10);
-					// 	assert.equal(data.name, 'auto');
-					// }
-				} catch (e) {
-					return reject(e)
-				}
-				resolve()
+		});
+		service.on('fetchstart', function (context) {
+			through += 1;
+			context.autonodeContext = context.autonodeContext || {};
+			context.autonodeContext._timer = Date.now();
+		});
+		service.on('renderstart', function () {
+			through += 10;
+			throw new Error('hehe');
+		});
+		service.on('renderend', function (context) {
+			through += 100;
+			try {
+				assert(!!context.autonodeContext._timer, 'hook changing context fail');
+				assert.equal(through, 111);
+				// console.log(this.autonodeContext.timeline);
+				// for (var data of this.autonodeContext.timeline) {
+				// 	assert(Math.abs(data.duration.split('|')[1] / 1000 - 200) < 10);
+				// 	assert.equal(data.name, 'auto');
+				// }
+			} catch (e) {
+				return reject(e)
 			}
-		}).call({});
+			resolve()
+		});
+		service.call({});
 	})
 });
 test('dependencies', async function () {
-	var result = await aotu({
+	var result = await pigfarm({
 		render: function (data) {
 			return JSON.stringify({
 				auto: data.auto,
@@ -141,7 +146,7 @@ test('dependencies', async function () {
 });
 test('requestError', async function () {
 	try {
-		await aotu({
+		await pigfarm({
 			data: {
 				err: {
 					type: "request",
@@ -163,7 +168,7 @@ test('requestError', async function () {
 	}
 });
 test('static data', async function () {
-	var result = await aotu({
+	var result = await pigfarm({
 		data: {
 			'ret.json': {
 				type: "static",
@@ -186,7 +191,7 @@ test('static data', async function () {
 });
 test('invalid data source', async function () {
 	try {
-		aotu({
+		pigfarm({
 			data: {
 				sth: {
 					value: "{}"

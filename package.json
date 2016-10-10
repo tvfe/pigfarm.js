@@ -1,7 +1,7 @@
 {
   "name": "pigfarm.js",
-  "version": "1.0.0",
-  "description": "",
+  "version": "1.0.2",
+  "description": "配置化页面输出",
   "main": "index.js",
   "scripts": {
     "test": "node_modules/.bin/nyc node_modules/.bin/ava test/**/*.test.js --timeout 5000"
@@ -9,33 +9,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "pigfarm-fetcher": "^1.0.0",
     "co": "^4.6.0",
     "debug": "^2.2.0",
     "extend": "^3.0.0",
+    "pigfarm-fetcher": "^1.0.0",
+    "pigfarm-render": "^1.0.0",
     "process.hrtime": "^1.0.1"
   },
   "devDependencies": {
     "@tencent/auto-request-factory": "^1.0.34",
     "ava": "^0.16.0",
     "nyc": "^8.3.0"
-  },
-  "babel": {
-    "presets": [
-      "es2015"
-    ],
-    "plugins": [
-      "transform-runtime"
-    ],
-    "env": {
-      "development": {
-        "sourceMaps": "inline"
-      }
-    }
-  },
-  "ava": {
-    "require": [
-      "babel-core/register"
-    ]
   }
 }

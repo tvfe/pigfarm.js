@@ -1,8 +1,8 @@
 var test = require("ava").test;
 var requestFactory = require("@tencent/auto-request-factory");
 var assert = require("assert");
-var aotu = require("..");
-aotu.useFetcher(requestFactory);
+var pigfarm = require("..");
+pigfarm.useFetcher(requestFactory);
 var templateCompiler = require("./es6templateCompiler");
 requestFactory.registerRequestor('default', function (cfg, callback) {
 	setTimeout(function () {
@@ -12,7 +12,7 @@ requestFactory.registerRequestor('default', function (cfg, callback) {
 
 test('render error', async function () {
 	try {
-		await aotu({
+		await pigfarm({
 			render: templateCompiler('<html>\n' +
 				'<head></head>\n' +
 				'    <body>\n' +
@@ -35,7 +35,7 @@ test('render error', async function () {
 });
 
 test('default render', async function () {
-	var result = await aotu({
+	var result = await pigfarm({
 		data: {
 			data: {
 				type: "static",
@@ -45,5 +45,6 @@ test('default render', async function () {
 			}
 		}
 	})();
+	result = JSON.parse(result);
 	assert.equal(result.data.url, 'what://ever')
 });
