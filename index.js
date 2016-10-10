@@ -3,6 +3,7 @@ var nodedebug = require("debug");
 var co = require("co");
 var assert = require("assert");
 var extend = require("extend");
+var pigfarmRender = require("pigfarm-render");
 
 var runDependenciesTree = require("./lib/asyncDependencies");
 var createInjector = require("./lib/data-injector");
@@ -14,8 +15,14 @@ var servelog = nodedebug("auto-serving");
 var exportee = module.exports = function (config, options) {
 	options = options || {};
 
-	assert.equal(typeof (config.data = config.data || {}), 'object', 'please give aotu.js a datasource map');
-	config.render = config.render || (d=>JSON.stringify(d));
+	assert.equal(typeof (config.data = config.data || {}), 'object', 'please give pigfarm.js a datasource map');
+	if (!config.render) {
+		if (config.template) {
+			config.render = pigfarmRender(config.template, config.helper || {})
+		} else {
+			config.render = config.render || (d=>JSON.stringify(d));
+		}
+	}
 
 	// static data
 	var _staticJSON = {};
@@ -85,7 +92,7 @@ var exportee = module.exports = function (config, options) {
 					dep: config.data[key].dependencies,
 					factory: datas=> {
 
-						return fetchers[key].call(this.autonodeContext, extend({}, datas, contextParam))
+						return fetchers[key](extend({}, datas, contextParam))
 							.then(function (ret) {
 								ret = ret.data;
 
@@ -135,7 +142,7 @@ var exportee = module.exports = function (config, options) {
 	}
 };
 
-exportee.useFetcher = function (autoRequest) {
+exportee.useFetcher = function (fetcher) {
     fetchersFactory.useFetcher.apply(this, arguments);
 };
 

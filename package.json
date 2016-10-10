@@ -9,10 +9,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "pigfarm-fetcher": "^1.0.0",
     "co": "^4.6.0",
     "debug": "^2.2.0",
     "extend": "^3.0.0",
+    "pigfarm-fetcher": "^1.0.0",
+    "pigfarm-render": "^1.0.0",
     "process.hrtime": "^1.0.1"
   },
   "devDependencies": {
