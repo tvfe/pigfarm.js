@@ -56,8 +56,9 @@ test('run helper', async function () {
 	assert.equal(result, '{"testdata":true,"wocao":1}');
 });
 test('requestEnd hook', async function () {
+	let through = 0;
 	return new Promise(function (resolve, reject) {
-		pigfarm({
+		var service = pigfarm({
 			render: ()=> '<div></div>',
 			data: {
 				auto: {
@@ -71,28 +72,32 @@ test('requestEnd hook', async function () {
 					}
 				}
 			}
-		}, {
-			onFetchStart: function () {
-				this.autonodeContext = this.autonodeContext || {};
-				this.autonodeContext._timer = Date.now();
-			},
-			onRenderStart: function () {
-				throw new Error('hehe');
-			},
-			onRenderEnd: function () {
-				try {
-					assert(!!this.autonodeContext._timer, 'hook changing context fail');
-					// console.log(this.autonodeContext.timeline);
-					// for (var data of this.autonodeContext.timeline) {
-					// 	assert(Math.abs(data.duration.split('|')[1] / 1000 - 200) < 10);
-					// 	assert.equal(data.name, 'auto');
-					// }
-				} catch (e) {
-					return reject(e)
-				}
-				resolve()
+		});
+		service.on('fetchstart', function (context) {
+			through += 1;
+			context.autonodeContext = context.autonodeContext || {};
+			context.autonodeContext._timer = Date.now();
+		});
+		service.on('renderstart', function () {
+			through += 10;
+			throw new Error('hehe');
+		});
+		service.on('renderend', function (context) {
+			through += 100;
+			try {
+				assert(!!context.autonodeContext._timer, 'hook changing context fail');
+				assert.equal(through, 111);
+				// console.log(this.autonodeContext.timeline);
+				// for (var data of this.autonodeContext.timeline) {
+				// 	assert(Math.abs(data.duration.split('|')[1] / 1000 - 200) < 10);
+				// 	assert.equal(data.name, 'auto');
+				// }
+			} catch (e) {
+				return reject(e)
 			}
-		}).call({});
+			resolve()
+		});
+		service.call({});
 	})
 });
 test('dependencies', async function () {
