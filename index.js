@@ -87,6 +87,7 @@ var exportee = module.exports = function (config) {
 
 			} catch (e) {
 				e.status = e.status || 555;
+				e.renderData = renderData;
 				throw e;
 			}
 			emitEvent(exportee, ['renderend', this]);
