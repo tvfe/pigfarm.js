@@ -206,3 +206,17 @@ test('invalid data source', async function () {
 	}
 
 });
+test('fail data source', async function() {
+	var result = await pigfarm({
+		data: {
+			sth: {
+				type: 'request',
+				action: {
+					url: "error://123"
+				}
+			}
+		},
+		template: '${sth.toString()}'
+	})();
+	assert.equal(result, '[object Object]');
+});

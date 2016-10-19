@@ -54,8 +54,12 @@ var exportee = module.exports = function (config) {
 						return fetchers[key](extend({}, datas, contextParam))
 							.then(function (ret) {
 								ret = ret.data;
+								if (ret === void 0 || ret === null || ret === false) {
+									return {};
 
-								return !ret ? '' : ret
+								} else {
+									return ret;
+								}
 							});
 					}
 				};
