@@ -48,3 +48,5 @@ app.on('fetchstart', function(koacontext) {
 2. fetchend
 3. renderstart
 4. renderend
+
+## 修改完之后记得npm run test

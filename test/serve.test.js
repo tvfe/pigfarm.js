@@ -73,6 +73,12 @@ test('requestEnd hook', async function () {
 				}
 			}
 		});
+		service.on('fetchend', function (context, timestat) {
+			assert(timestat.auto);
+			assert('all' in timestat.auto);
+			assert('fixParam' in timestat.auto);
+			assert('fixResult' in timestat.auto);
+		});
 		service.on('fetchstart', function (context) {
 			through += 1;
 			context.autonodeContext = context.autonodeContext || {};

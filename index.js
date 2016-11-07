@@ -3,7 +3,6 @@ var nodedebug = require("debug");
 var co = require("co");
 var assert = require("assert");
 var extend = require("extend");
-var pigfarmRender = require("pigfarm-render");
 
 var runDependenciesTree = require("./lib/asyncDependencies");
 var createInjector = require("./lib/data-injector");
@@ -15,14 +14,8 @@ var EventEmitter = require("events");
 
 var exportee = module.exports = function (config) {
 
-	assert.equal(typeof (config.data = config.data || {}), 'object', 'please give pigfarm.js a datasource map');
-	if (!config.render) {
-		if (config.template) {
-			config.render = pigfarmRender(config.template, config.helper || {})
-		} else {
-			config.render = config.render || (d=>JSON.stringify(d));
-		}
-	}
+	assert.equal(typeof (config.data = config.data || {}), 'object', 'please give aotu.js a datasource map');
+	config.render = config.render || (d=>JSON.stringify(d));
 
 	// static data
 	var _staticJSON = {};
@@ -44,6 +37,7 @@ var exportee = module.exports = function (config) {
 			servelog('fetch start');
 			emitEvent(exportee, ['fetchstart', this]);
 
+			var timestats = {};
 			// make the dependency tree for all requests
 			Object.keys(fetchers).forEach(key=> {
 
@@ -51,15 +45,12 @@ var exportee = module.exports = function (config) {
 					dep: config.data[key].dependencies,
 					factory: datas=> {
 
-						return fetchers[key](extend({}, datas, contextParam))
+						return fetchers[key].call(this.autonodeContext, extend({}, datas, contextParam))
 							.then(function (ret) {
+								ret.timestat && (timestats[key] = ret.timestat);
 								ret = ret.data;
-								if (ret === void 0 || ret === null || ret === false) {
-									return {};
 
-								} else {
-									return ret;
-								}
+								return !ret ? '' : ret
 							});
 					}
 				};
@@ -69,7 +60,7 @@ var exportee = module.exports = function (config) {
 			var fetched = yield runDependenciesTree.call(this, requestTree);
 
 			servelog('fetch end');
-			emitEvent(exportee, ['fetchend', this]);
+			emitEvent(exportee, ['fetchend', this, timestats]);
 
 			Object.keys(fetched).forEach(key=> {
 				let result = fetched[key];
@@ -91,7 +82,6 @@ var exportee = module.exports = function (config) {
 
 			} catch (e) {
 				e.status = e.status || 555;
-				e.renderData = renderData;
 				throw e;
 			}
 			emitEvent(exportee, ['renderend', this]);
@@ -136,8 +126,8 @@ var exportee = module.exports = function (config) {
 	return exportee;
 };
 
-exportee.useFetcher = function (fetcher) {
-    fetchersFactory.useFetcher.apply(this, arguments);
+exportee.useFetcher = function (autoRequest) {
+	fetchersFactory.useFetcher.apply(this, arguments);
 };
 
 function emitEvent(emitter, args) {
