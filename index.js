@@ -36,7 +36,7 @@ var exportee = module.exports = function (config) {
 		return new Promise(function (resolve, reject) {
 			var errHandler = function (err) {
 				err.status = err.status || 503;
-				resolve(err);
+				reject(err);
 			};
 
 			try {
@@ -92,6 +92,7 @@ var exportee = module.exports = function (config) {
 						// render
 						servelog('renderData keys', Object.keys(renderData));
 
+						var hasError = false;
 						try {
 							var html = render(renderData);
 
@@ -99,10 +100,14 @@ var exportee = module.exports = function (config) {
 							e.status = e.status || 555;
 							e.renderData = renderData;
 							reject(e);
+							hasError = true;
 						}
-						emitEvent(exportee, ['renderend', self]);
 
-						resolve(html);
+						if (hasError) {
+							emitEvent(exportee, ['renderend', self]);
+
+							resolve(html);
+						}
 					}, errHandler).catch(errHandler);
 			} catch (err) {
 				errHandler.call(null, err);
