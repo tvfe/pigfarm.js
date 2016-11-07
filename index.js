@@ -1,6 +1,5 @@
 'use strict';
 var nodedebug = require("debug");
-var co = require("co");
 var assert = require("assert");
 var extend = require("extend");
 var pigfarmRender = require("pigfarm-render");
@@ -8,6 +7,7 @@ var pigfarmRender = require("pigfarm-render");
 var runDependenciesTree = require("./lib/asyncDependencies");
 var createInjector = require("./lib/data-injector");
 var fetchersFactory = require("./lib/fetchers");
+var Promise = require("./lib/promise");
 
 var createlog = nodedebug("auto-creating");
 var servelog = nodedebug("auto-serving");
@@ -23,6 +23,7 @@ var exportee = module.exports = function (config) {
 			config.render = config.render || (d=>JSON.stringify(d));
 		}
 	}
+
 	// static data
 	var _staticJSON = {};
 	// read data sources
@@ -31,80 +32,83 @@ var exportee = module.exports = function (config) {
 	var render = config.render;
 
 	var exportee = function (fetchContext) {
-		return co(function *() {
-			servelog('start');
-			const contextParam = fetchContext || {};
-
-			// copy the staticJSON
-			var renderData = extend(contextParam, JSON.parse(JSON.stringify(_staticJSON)));
-
-			var requestTree = {};
-
-			servelog('fetch start');
-			emitEvent(exportee, ['fetchstart', this]);
-
-			var timestats = {};
-			// make the dependency tree for all requests
-			Object.keys(fetchers).forEach(key=> {
-
-				requestTree[key] = {
-					dep: config.data[key].dependencies,
-					factory: datas=> {
-
-						return fetchers[key](extend({}, datas, contextParam))
-							.then(function (ret) {
-								ret.timestat && (timestats[key] = ret.timestat);
-								ret = ret.data;
-
-								if (ret === void 0 || ret === null || ret === false) {
-									return {};
-
-								} else {
-									return ret;
-								}
-							});
-					}
-				};
-
-			});
-
-			var fetched = yield runDependenciesTree.call(this, requestTree);
-
-			servelog('fetch end');
-			emitEvent(exportee, ['fetchend', this, timestats]);
-
-			Object.keys(fetched).forEach(key=> {
-				let result = fetched[key];
-				let dep = config.data[key].dependencies;
-				if (dep && !config.data[key].mountatglobal) {
-					createInjector(key)(result, fetched[dep[0]])
-
-				} else {
-					createInjector(key, renderData)(result);
-
-				}
-			});
-			emitEvent(exportee, ['renderstart', this]);
-			// render
-			servelog('renderData keys', Object.keys(renderData));
+		var self = this;
+		return new Promise(function (resolve, reject) {
+			var errHandler = function (err) {
+				err.status = err.status || 503;
+				resolve(err);
+			};
 
 			try {
-				var html = render(renderData);
+				servelog('start');
+				const contextParam = fetchContext || {};
 
-			} catch (e) {
-				e.status = e.status || 555;
-				e.renderData = renderData;
-				throw e;
+				// copy the staticJSON
+				var renderData = extend(contextParam, JSON.parse(JSON.stringify(_staticJSON)));
+
+				var requestTree = {};
+
+				servelog('fetch start');
+				emitEvent(exportee, ['fetchstart', self]);
+
+				// make the dependency tree for all requests
+				Object.keys(fetchers).forEach(key=> {
+
+					requestTree[key] = {
+						dep: config.data[key].dependencies,
+						factory: datas=> {
+
+							return fetchers[key](extend({}, datas, contextParam))
+								.then(function (ret) {
+									ret = ret.data;
+									if (ret === void 0 || ret === null || ret === false) {
+										return {};
+
+									} else {
+										return ret;
+									}
+								});
+						}
+					};
+
+				});
+				runDependenciesTree.call(self, requestTree)
+					.then(function (fetched) {
+						servelog('fetch end');
+						emitEvent(exportee, ['fetchend', self]);
+
+						Object.keys(fetched).forEach(key=> {
+							let result = fetched[key];
+							let dep = config.data[key].dependencies;
+							if (dep && !config.data[key].mountatglobal) {
+								createInjector(key)(result, fetched[dep[0]])
+
+							} else {
+								createInjector(key, renderData)(result);
+
+							}
+						});
+						emitEvent(exportee, ['renderstart', self]);
+						// render
+						servelog('renderData keys', Object.keys(renderData));
+
+						try {
+							var html = render(renderData);
+
+						} catch (e) {
+							e.status = e.status || 555;
+							e.renderData = renderData;
+							reject(e);
+						}
+						emitEvent(exportee, ['renderend', self]);
+
+						resolve(html);
+					}, errHandler).catch(errHandler);
+			} catch (err) {
+				errHandler.call(null, err);
 			}
-			emitEvent(exportee, ['renderend', this]);
 
-			return html;
-
-		}).catch(e=> {
-			e.status = e.status || 503;
-
-			return Promise.reject(e);
-		})
+		});
 	};
 
 	extend(exportee, EventEmitter.prototype);
@@ -138,15 +142,14 @@ var exportee = module.exports = function (config) {
 	return exportee;
 };
 
-exportee.useFetcher = function (autoRequest) {
-	fetchersFactory.useFetcher.apply(this, arguments);
+exportee.useFetcher = function (fetcher) {
+    fetchersFactory.useFetcher.apply(this, arguments);
 };
 
 function emitEvent(emitter, args) {
 	try {
 		emitter.emit.apply(emitter, args);
-	} catch (e) {
-	}
+	} catch(e) {}
 }
 
 function noop() {
