@@ -73,6 +73,12 @@ test('requestEnd hook', async function () {
 				}
 			}
 		});
+		service.on('fetchend', function (context, timestat) {
+			assert(timestat.auto);
+			assert('all' in timestat.auto);
+			assert('fixParam' in timestat.auto);
+			assert('fixResult' in timestat.auto);
+		});
 		service.on('fetchstart', function (context) {
 			through += 1;
 			context.autonodeContext = context.autonodeContext || {};
@@ -205,4 +211,18 @@ test('invalid data source', async function () {
 		assert.equal(e.message, 'must indicate a type for datasource');
 	}
 
+});
+test('fail data source', async function() {
+	var result = await pigfarm({
+		data: {
+			sth: {
+				type: 'request',
+				action: {
+					url: "error://123"
+				}
+			}
+		},
+		template: '${sth.toString()}'
+	})();
+	assert.equal(result, '[object Object]');
 });

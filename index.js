@@ -23,7 +23,6 @@ var exportee = module.exports = function (config) {
 			config.render = config.render || (d=>JSON.stringify(d));
 		}
 	}
-
 	// static data
 	var _staticJSON = {};
 	// read data sources
@@ -44,6 +43,7 @@ var exportee = module.exports = function (config) {
 			servelog('fetch start');
 			emitEvent(exportee, ['fetchstart', this]);
 
+			var timestats = {};
 			// make the dependency tree for all requests
 			Object.keys(fetchers).forEach(key=> {
 
@@ -53,9 +53,15 @@ var exportee = module.exports = function (config) {
 
 						return fetchers[key](extend({}, datas, contextParam))
 							.then(function (ret) {
+								ret.timestat && (timestats[key] = ret.timestat);
 								ret = ret.data;
 
-								return !ret ? '' : ret
+								if (ret === void 0 || ret === null || ret === false) {
+									return {};
+
+								} else {
+									return ret;
+								}
 							});
 					}
 				};
@@ -65,7 +71,7 @@ var exportee = module.exports = function (config) {
 			var fetched = yield runDependenciesTree.call(this, requestTree);
 
 			servelog('fetch end');
-			emitEvent(exportee, ['fetchend', this]);
+			emitEvent(exportee, ['fetchend', this, timestats]);
 
 			Object.keys(fetched).forEach(key=> {
 				let result = fetched[key];
@@ -87,6 +93,7 @@ var exportee = module.exports = function (config) {
 
 			} catch (e) {
 				e.status = e.status || 555;
+				e.renderData = renderData;
 				throw e;
 			}
 			emitEvent(exportee, ['renderend', this]);
@@ -131,14 +138,15 @@ var exportee = module.exports = function (config) {
 	return exportee;
 };
 
-exportee.useFetcher = function (fetcher) {
-    fetchersFactory.useFetcher.apply(this, arguments);
+exportee.useFetcher = function (autoRequest) {
+	fetchersFactory.useFetcher.apply(this, arguments);
 };
 
 function emitEvent(emitter, args) {
 	try {
 		emitter.emit.apply(emitter, args);
-	} catch(e) {}
+	} catch (e) {
+	}
 }
 
 function noop() {

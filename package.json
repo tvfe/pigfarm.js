@@ -1,6 +1,6 @@
 {
   "name": "pigfarm.js",
-  "version": "1.0.2",
+  "version": "1.0.6",
   "description": "配置化页面输出",
   "main": "index.js",
   "scripts": {
@@ -9,9 +9,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "co": "^4.6.0",
     "debug": "^2.2.0",
+    "es6-promise": "^4.0.5",
     "extend": "^3.0.0",
+    "gulp-uglify": "^2.0.0",
     "pigfarm-fetcher": "^1.0.0",
     "pigfarm-render": "^1.0.0",
     "process.hrtime": "^1.0.1"
@@ -19,6 +20,11 @@
   "devDependencies": {
     "@tencent/auto-request-factory": "^1.0.34",
     "ava": "^0.16.0",
-    "nyc": "^8.3.0"
+    "babel-core": "^6.18.2",
+    "babel-loader": "^6.2.7",
+    "babel-preset-es2015": "^6.18.0",
+    "gulp": "^3.9.1",
+    "nyc": "^8.3.0",
+    "webpack": "^1.13.3"
   }
 }
