@@ -31,7 +31,9 @@ test('render error', async function () {
 	} catch (e) {
 		assert.equal(e.status, 555);
 		assert(e.wrapper.indexOf('4 > |         <div>${undef.hehe}</div>') != -1);
+		return
 	}
+	assert(false)
 });
 test('run helper', async function () {
 	var result = await pigfarm({
