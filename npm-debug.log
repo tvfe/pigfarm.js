@@ -1,0 +1,40 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'd:\\nodejs\\node.exe',
+1 verbose cli   'd:\\nodejs\\node_modules\\npm\\bin\\npm-cli.js',
+1 verbose cli   'run',
+1 verbose cli   'test' ]
+2 info using npm@2.14.7
+3 info using node@v4.2.1
+4 verbose run-script [ 'pretest', 'test', 'posttest' ]
+5 info pretest pigfarm.js@1.0.4
+6 info test pigfarm.js@1.0.4
+7 verbose unsafe-perm in lifecycle true
+8 info pigfarm.js@1.0.4 Failed to exec test script
+9 verbose stack Error: pigfarm.js@1.0.4 test: `nyc node_modules/.bin/ava test/**/*.test.js --timeout 5000`
+9 verbose stack Exit status 1
+9 verbose stack     at EventEmitter.<anonymous> (d:\nodejs\node_modules\npm\lib\utils\lifecycle.js:214:16)
+9 verbose stack     at emitTwo (events.js:87:13)
+9 verbose stack     at EventEmitter.emit (events.js:172:7)
+9 verbose stack     at ChildProcess.<anonymous> (d:\nodejs\node_modules\npm\lib\utils\spawn.js:24:14)
+9 verbose stack     at emitTwo (events.js:87:13)
+9 verbose stack     at ChildProcess.emit (events.js:172:7)
+9 verbose stack     at maybeClose (internal/child_process.js:818:16)
+9 verbose stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:211:5)
+10 verbose pkgid pigfarm.js@1.0.4
+11 verbose cwd S:\autonode\pigfarm.js
+12 error Windows_NT 6.1.7601
+13 error argv "d:\\nodejs\\node.exe" "d:\\nodejs\\node_modules\\npm\\bin\\npm-cli.js" "run" "test"
+14 error node v4.2.1
+15 error npm  v2.14.7
+16 error code ELIFECYCLE
+17 error pigfarm.js@1.0.4 test: `nyc node_modules/.bin/ava test/**/*.test.js --timeout 5000`
+17 error Exit status 1
+18 error Failed at the pigfarm.js@1.0.4 test script 'nyc node_modules/.bin/ava test/**/*.test.js --timeout 5000'.
+18 error This is most likely a problem with the pigfarm.js package,
+18 error not with npm itself.
+18 error Tell the author that this fails on your system:
+18 error     nyc node_modules/.bin/ava test/**/*.test.js --timeout 5000
+18 error You can get their info via:
+18 error     npm owner ls pigfarm.js
+18 error There is likely additional logging output above.
+19 verbose exit [ 1, true ]
