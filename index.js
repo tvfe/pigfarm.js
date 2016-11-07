@@ -92,7 +92,7 @@ var exportee = module.exports = function (config) {
 						// render
 						servelog('renderData keys', Object.keys(renderData));
 
-						var hasError = false;
+						var noError = true;
 						try {
 							var html = render(renderData);
 
@@ -100,10 +100,10 @@ var exportee = module.exports = function (config) {
 							e.status = e.status || 555;
 							e.renderData = renderData;
 							reject(e);
-							hasError = true;
+							noError = false;
 						}
 
-						if (hasError) {
+						if (noError) {
 							emitEvent(exportee, ['renderend', self]);
 
 							resolve(html);
