@@ -4,7 +4,7 @@
   "description": "配置化页面输出",
   "main": "index.js",
   "scripts": {
-    "test": "node_modules/.bin/nyc node_modules/.bin/ava test/**/*.test.js --timeout 5000"
+    "test": "node_modules/.bin/nyc node_modules/.bin/ava test/**/*.test.js --timeout 5000 --verbose"
   },
   "author": "",
   "license": "ISC",
