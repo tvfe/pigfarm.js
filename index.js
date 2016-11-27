@@ -34,85 +34,75 @@ var exportee = module.exports = function (config) {
 	var exportee = function (fetchContext) {
 		var self = this;
 		return new Promise(function (resolve, reject) {
-			var errHandler = function (err) {
-				err.status = err.status || 503;
-				reject(err);
-			};
+			servelog('start');
+			const contextParam = fetchContext || {};
 
-			try {
-				servelog('start');
-				const contextParam = fetchContext || {};
+			// copy the staticJSON
+			var renderData = extend(contextParam, JSON.parse(JSON.stringify(_staticJSON)));
 
-				// copy the staticJSON
-				var renderData = extend(contextParam, JSON.parse(JSON.stringify(_staticJSON)));
+			var requestTree = {};
 
-				var requestTree = {};
+			servelog('fetch start');
+			emitEvent(exportee, ['fetchstart', self]);
 
-				servelog('fetch start');
-				emitEvent(exportee, ['fetchstart', self]);
+			// make the dependency tree for all requests
+			Object.keys(fetchers).forEach(key=> {
 
-				// make the dependency tree for all requests
-				Object.keys(fetchers).forEach(key=> {
+				requestTree[key] = {
+					dep: config.data[key].dependencies,
+					factory: datas=> {
 
-					requestTree[key] = {
-						dep: config.data[key].dependencies,
-						factory: datas=> {
+						return fetchers[key](extend({}, datas, contextParam))
+							.then(function (ret) {
+								ret = ret.data;
+								if (ret === void 0 || ret === null || ret === false) {
+									return {};
 
-							return fetchers[key](extend({}, datas, contextParam))
-								.then(function (ret) {
-									ret = ret.data;
-									if (ret === void 0 || ret === null || ret === false) {
-										return {};
+								} else {
+									return ret;
+								}
+							});
+					}
+				};
 
-									} else {
-										return ret;
-									}
-								});
+			});
+			runDependenciesTree.call(self, requestTree)
+				.then(function (fetched) {
+					servelog('fetch end');
+					emitEvent(exportee, ['fetchend', self]);
+
+					Object.keys(fetched).forEach(key=> {
+						let result = fetched[key];
+						let dep = config.data[key].dependencies;
+						if (dep && !config.data[key].mountatglobal) {
+							createInjector(key)(result, fetched[dep[0]])
+
+						} else {
+							createInjector(key, renderData)(result);
+
 						}
-					};
+					});
+					emitEvent(exportee, ['renderstart', self]);
+					// render
+					servelog('renderData keys', Object.keys(renderData));
 
-				});
-				runDependenciesTree.call(self, requestTree)
-					.then(function (fetched) {
-						servelog('fetch end');
-						emitEvent(exportee, ['fetchend', self]);
+					try {
+						var html = render(renderData);
 
-						Object.keys(fetched).forEach(key=> {
-							let result = fetched[key];
-							let dep = config.data[key].dependencies;
-							if (dep && !config.data[key].mountatglobal) {
-								createInjector(key)(result, fetched[dep[0]])
+					} catch (e) {
+						e.status = e.status || 555;
+						e.renderData = renderData;
+						return reject(e);
+					}
 
-							} else {
-								createInjector(key, renderData)(result);
+					emitEvent(exportee, ['renderend', self]);
 
-							}
-						});
-						emitEvent(exportee, ['renderstart', self]);
-						// render
-						servelog('renderData keys', Object.keys(renderData));
-
-						var noError = true;
-						try {
-							var html = render(renderData);
-
-						} catch (e) {
-							e.status = e.status || 555;
-							e.renderData = renderData;
-							reject(e);
-							noError = false;
-						}
-
-						if (noError) {
-							emitEvent(exportee, ['renderend', self]);
-
-							resolve(html);
-						}
-					}, errHandler).catch(errHandler);
-			} catch (err) {
-				errHandler.call(null, err);
-			}
-
+					resolve(html);
+				}, reject)
+				.catch(reject);
+		}).catch(function (err) {
+			err.status = err.status || 503;
+			throw err
 		});
 	};
 
@@ -148,13 +138,14 @@ var exportee = module.exports = function (config) {
 };
 
 exportee.useFetcher = function (fetcher) {
-    fetchersFactory.useFetcher.apply(this, arguments);
+	fetchersFactory.useFetcher.apply(this, arguments);
 };
 
 function emitEvent(emitter, args) {
 	try {
 		emitter.emit.apply(emitter, args);
-	} catch(e) {}
+	} catch (e) {
+	}
 }
 
 function noop() {
