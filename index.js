@@ -26,6 +26,8 @@ var exportee = module.exports = function (config) {
 
 	// static data
 	var _staticJSON = {};
+    // static function
+    var _staticFunc = {};
 	// read data sources
 	var fetchers = {};
 
@@ -39,6 +41,16 @@ var exportee = module.exports = function (config) {
 
 			// copy the staticJSON
 			var renderData = extend(contextParam, JSON.parse(JSON.stringify(_staticJSON)));
+
+            // inject the return value of staticFunc
+            Object.keys(_staticFunc).forEach(key => {
+                var result = _staticFunc[key](contextParam);
+                if (typeof(result) === 'object') {
+                    createInjector(key, renderData)(result);
+                }else{
+                    console.log(`WARNING: static ${key} is ignored, function of value must return object`);
+                }
+            });
 
 			var requestTree = {};
 
@@ -122,8 +134,8 @@ var exportee = module.exports = function (config) {
 			// static json, put it into result
 			// _staticJSON[key] = value;
 
-			// put the static data into result
-			createInjector(key, _staticJSON)(dataSource.value);
+			typeof(dataSource.value) === 'function' ? (_staticFunc[key] = dataSource.value) // put the static function
+                : createInjector(key, _staticJSON)(dataSource.value); // put the static data into result
 
 		} else {
 			throw new Error('must indicate a type for datasource');

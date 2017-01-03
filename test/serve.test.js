@@ -187,6 +187,24 @@ test('static data', async function () {
 				action: {
 					url: "what://ever"
 				}
+			},
+			'ret.func': {
+				type: "static",
+				value: function(req){
+					return {"hehe": 1}
+				}
+			},
+			'ret1': {
+				type: "static",
+				value: function(req){
+					return {"hehe": 1}
+				}
+			},
+			'retUndefine': {
+				type: "static",
+				value: function(req){
+					// return {"hehe": 1}
+				}
 			}
 		},
 		render: function (data) {
@@ -196,6 +214,10 @@ test('static data', async function () {
 	assert.equal(result.ret.json.hehe, 1);
 	assert(result.ret.request.testdata);
 	assert.equal(result['ret.json'], void 0);
+	assert.equal(result.ret.func.hehe, 1);
+	assert.equal(result['ret.func'], void 0);
+	assert.equal(result.ret1.hehe, 1);
+	assert.equal(result['retUndefine'], void 0);
 });
 test('invalid data source', async function () {
 	try {
