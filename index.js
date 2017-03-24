@@ -13,7 +13,8 @@ var createlog = nodedebug("auto-creating");
 var servelog = nodedebug("auto-serving");
 var EventEmitter = require("events");
 
-var exportee = module.exports = function (config) {
+var exportee = module.exports = function (config, option) {
+	option = option || {};
 
 	assert.equal(typeof (config.data = config.data || {}), 'object', 'please give pigfarm.js a datasource map');
 	if (!config.render) {
@@ -37,6 +38,11 @@ var exportee = module.exports = function (config) {
 		var self = this;
 		return new Promise(function (resolve, reject) {
 			servelog('start');
+			if (option.timeout && !isNaN(+option.timeout)) {
+				setTimeout(function () {
+				    reject(new Error('pigfarm timeout'));
+				}, option.timeout)
+			}
 			const contextParam = fetchContext || {};
 
 			// copy the staticJSON
@@ -110,7 +116,7 @@ var exportee = module.exports = function (config) {
 					emitEvent(exportee, ['renderend', self]);
 
 					resolve(html);
-				}, reject)
+				})
 				.catch(reject);
 		}).catch(function (err) {
 			err.status = err.status || 503;
