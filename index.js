@@ -17,7 +17,9 @@ var exportee = module.exports = function (config, option) {
 	option = option || {};
 
 	assert.equal(typeof (config.data = config.data || {}), 'object', 'please give pigfarm.js a datasource map');
+
 	if (!config.render) {
+		config = extend({}, config);
 		if (config.template) {
 			config.render = pigfarmRender(config.template, config.helper || {})
 		} else {
