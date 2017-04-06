@@ -45,7 +45,7 @@ var exportee = module.exports = function (config) {
             // inject the return value of staticFunc
             Object.keys(_staticFunc).forEach(key => {
                 var result = _staticFunc[key](contextParam);
-                if (typeof(result) === 'object') {
+                if (typeof result === 'object') {
                     createInjector(key, renderData)(result);
                 }else{
                     console.log(`WARNING: static ${key} is ignored, function of value must return object`);
