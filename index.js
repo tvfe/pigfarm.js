@@ -137,6 +137,7 @@ var exportee = module.exports = function (config, option) {
 			// request, fetch them when user's requests come in
 			// if this config is request, create fetchers
 			fetchers[key] = dataSource.action;
+			fetchers[key].name = key;
 
 		} else if (dataSource.type == 'static') {
 			// static json, put it into result
