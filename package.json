@@ -1,6 +1,6 @@
 {
   "name": "pigfarm.js",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "配置化页面输出",
   "main": "index.js",
   "scripts": {
