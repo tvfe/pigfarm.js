@@ -12,9 +12,14 @@ requestFactory.registerRequestor('default', function (cfg, callback) {
 	}, 200);
 });
 requestFactory.registerRequestor('error', function (cfg, callback) {
-	setTimeout(function () {
-		callback(new Error(cfg.url));
-	})
+    setTimeout(function () {
+        callback(new Error(cfg.url));
+    })
+});
+requestFactory.registerRequestor('time3000', function (cfg, callback) {
+    setTimeout(function () {
+        callback(null, {});
+    }, 3000)
 });
 
 test('render error', async function () {
@@ -249,4 +254,24 @@ test('fail data source', async function() {
 		template: '${sth.toString()}'
 	})();
 	assert.equal(result, '[object Object]');
+});
+test('timeout', async function() {
+    try {
+        await pigfarm({
+            data: {
+                sth: {
+                    type: 'request',
+                    action: {
+                        url: "time3000://123"
+                    }
+                }
+            },
+            template: '${sth.toString()}'
+        }, {
+            timeout: 2000
+        })();
+    } catch(e) {
+        return assert.equal(e.message, 'pigfarm timeout')
+    }
+    assert(false);
 });

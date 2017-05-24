@@ -13,10 +13,13 @@ var createlog = nodedebug("auto-creating");
 var servelog = nodedebug("auto-serving");
 var EventEmitter = require("events");
 
-var exportee = module.exports = function (config) {
+var exportee = module.exports = function (config, option) {
+	option = option || {};
 
 	assert.equal(typeof (config.data = config.data || {}), 'object', 'please give pigfarm.js a datasource map');
+
 	if (!config.render) {
+		config = extend({}, config);
 		if (config.template) {
 			config.render = pigfarmRender(config.template, config.helper || {})
 		} else {
@@ -37,6 +40,11 @@ var exportee = module.exports = function (config) {
 		var self = this;
 		return new Promise(function (resolve, reject) {
 			servelog('start');
+			if (option.timeout && !isNaN(+option.timeout)) {
+				setTimeout(function () {
+				    reject(new Error('pigfarm timeout'));
+				}, option.timeout)
+			}
 			const contextParam = fetchContext || {};
 
 			// copy the staticJSON
@@ -64,7 +72,7 @@ var exportee = module.exports = function (config) {
 					dep: config.data[key].dependencies,
 					factory: datas=> {
 
-						return fetchers[key](extend({}, datas, contextParam))
+						return fetchers[key].call(self, extend({}, datas, contextParam))
 							.then(function (ret) {
 								ret = ret.data;
 								if (ret === void 0 || ret === null || ret === false) {
@@ -110,7 +118,7 @@ var exportee = module.exports = function (config) {
 					emitEvent(exportee, ['renderend', self]);
 
 					resolve(html);
-				}, reject)
+				})
 				.catch(reject);
 		}).catch(function (err) {
 			err.status = err.status || 503;
@@ -129,6 +137,7 @@ var exportee = module.exports = function (config) {
 			// request, fetch them when user's requests come in
 			// if this config is request, create fetchers
 			fetchers[key] = dataSource.action;
+			fetchers[key].name = key;
 
 		} else if (dataSource.type == 'static') {
 			// static json, put it into result
