@@ -23,7 +23,7 @@ var exportee = module.exports = function (config, option) {
 		if (config.template) {
 			config.render = pigfarmRender(config.template, config.helper || {})
 		} else {
-			config.render = config.render || (d=>JSON.stringify(d));
+			config.render = config.render || (function (d) {return JSON.stringify(d)});
 		}
 	}
 
@@ -51,7 +51,7 @@ var exportee = module.exports = function (config, option) {
 			var renderData = extend(contextParam, JSON.parse(JSON.stringify(_staticJSON)));
 
             // inject the return value of staticFunc
-            Object.keys(_staticFunc).forEach(key => {
+            Object.keys(_staticFunc).forEach(function (key) {
                 var result = _staticFunc[key](contextParam);
                 if (typeof result === 'object') {
                     createInjector(key, renderData)(result);
@@ -66,11 +66,11 @@ var exportee = module.exports = function (config, option) {
 			emitEvent(exportee, ['fetchstart', self]);
 
 			// make the dependency tree for all requests
-			Object.keys(fetchers).forEach(key=> {
+			Object.keys(fetchers).forEach(function (key) {
 
 				requestTree[key] = {
 					dep: config.data[key].dependencies,
-					factory: datas=> {
+					factory: function (datas) {
 
 						return fetchers[key].call(self, extend({}, datas, contextParam))
 							.then(function (ret) {
@@ -91,7 +91,7 @@ var exportee = module.exports = function (config, option) {
 					servelog('fetch end');
 					emitEvent(exportee, ['fetchend', self]);
 
-					Object.keys(fetched).forEach(key=> {
+					Object.keys(fetched).forEach(function (key) {
 						let result = fetched[key];
 						let dep = config.data[key].dependencies;
 						if (dep && !config.data[key].mountatglobal) {
@@ -130,7 +130,7 @@ var exportee = module.exports = function (config, option) {
 
 	createlog('reading data sources');
 
-	Object.keys(config.data).forEach(key=> {
+	Object.keys(config.data).forEach(function (key) {
 		var dataSource = config.data[key];
 
 		if (dataSource.type == 'request') {
