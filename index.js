@@ -92,8 +92,8 @@ var exportee = module.exports = function (config, option) {
 					emitEvent(exportee, ['fetchend', self]);
 
 					Object.keys(fetched).forEach(function (key) {
-						let result = fetched[key];
-						let dep = config.data[key].dependencies;
+						var result = fetched[key];
+						var dep = config.data[key].dependencies;
 						if (dep && !config.data[key].mountatglobal) {
 							createInjector(key)(result, fetched[dep[0]])
 
