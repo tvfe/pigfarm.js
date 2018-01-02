@@ -113,6 +113,55 @@ test('requestEnd hook', async function () {
 		service.call({});
 	})
 });
+test('fetchers hook', async t=> {
+	t.plan(3);
+	var service = pigfarm({
+		render: ()=> '<div></div>',
+		data: {
+			auto: {
+				type: "request",
+				action: {
+					url: "what://ever",
+					fixAfter: function (data) {
+						extend(data, {wocao: 1});
+						return data;
+					}
+				}
+			},
+			time3000: {
+				type: "request",
+				action: {
+					url: "time3000://ever",
+					fixAfter: function (data) {
+						extend(data, {wocao: 1});
+						return data;
+					}
+				}
+			},
+			error: {
+				type: "request",
+				action: {
+					url: "error://"
+				}
+			}
+		}
+	});
+	service.on('anyfetchsuccess', function(ctx, stats) {
+		if (stats.name == 'time3000') {
+			t.true(Math.abs(stats.time - 3000) < 10, stats.time);
+
+		} else if (stats.name == 'auto') {
+			t.true(Math.abs(stats.time - 200) < 10, stats.time);
+
+		} else if (stats.name == 'error') {
+			t.fail();
+		}
+	});
+	service.on('anyfetcherror', function(ctx, stats) {
+		t.is(stats.name, 'error');
+	});
+	return await service({});
+});
 test('dependencies', async function () {
 	var result = await pigfarm({
 		render: function (data) {
@@ -239,7 +288,6 @@ test('invalid data source', async function () {
 	} catch(e) {
 		assert.equal(e.message, 'must indicate a type for datasource');
 	}
-
 });
 test('fail data source', async function() {
 	var result = await pigfarm({
