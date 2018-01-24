@@ -56,7 +56,7 @@ var exportee = module.exports = function (config, option) {
                 if (typeof result === 'object') {
                     createInjector(key, renderData)(result);
                 }else{
-                    console.log(`WARNING: static ${key} is ignored, function of value must return object`);
+                    console.log('WARNING: static ' + key + ' is ignored, function of value must return object');
                 }
             });
 
