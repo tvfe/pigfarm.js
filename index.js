@@ -36,7 +36,7 @@ var exportee = module.exports = function (config, option) {
 
 	var render = config.render;
 
-	var exportee = function (fetchContext) {
+	var exportee = function peppapig(fetchContext) {
 		var self = this;
 		return new Promise(function (resolve, reject) {
 			servelog('start');
