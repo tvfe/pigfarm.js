@@ -52,12 +52,11 @@ var exportee = module.exports = function (config, option) {
 			// 把静态数据复制一遍
 			var renderData = extend(contextParam, JSON.parse(JSON.stringify(_staticJSON)));
 
-			// 把静态函数跑一遍
+			// inject the return value of staticFunc
 			Object.keys(_staticFunc).forEach(function (key) {
 				var result = _staticFunc[key](contextParam);
 				if (typeof result === 'object') {
 					createInjector(key, renderData)(result);
-
 				} else {
 					console.log('WARNING: static ' + key + ' is ignored, function of value must return object');
 				}
@@ -159,8 +158,8 @@ var exportee = module.exports = function (config, option) {
 			// request, fetch them when user's requests come in
 			// if this config is request, create fetchers
 			fetchers[key] = dataSource.action;
-			fetchers[key].fixBefore = (function(fixBefore) {
-				return function() {
+			fetchers[key].fixBefore = (function (fixBefore) {
+				return function () {
 
 				}
 			})(fetchers[key].fixBefore);
@@ -193,7 +192,7 @@ exportee.useFetcher = function (fetcher) {
 };
 
 function decorateWithEvent(fn, emitter) {
-	return function() {
+	return function () {
 		emitEvent(emitter, [this]);
 		return fn.apply(this, arguments);
 	}
