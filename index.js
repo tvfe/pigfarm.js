@@ -41,7 +41,7 @@ var exportee = module.exports = function (config, option) {
 		var self = this;
 
 		return new Promise(function (resolve, reject) {
-			servelog('start');
+			servelog('start', option);
 			if (option.timeout && !isNaN(+option.timeout)) {
 				setTimeout(function () {
 					reject(new Error('pigfarm timeout'));
@@ -158,11 +158,6 @@ var exportee = module.exports = function (config, option) {
 			// request, fetch them when user's requests come in
 			// if this config is request, create fetchers
 			fetchers[key] = dataSource.action;
-			fetchers[key].fixBefore = (function (fixBefore) {
-				return function () {
-
-				}
-			})(fetchers[key].fixBefore);
 
 			fetchers[key].name = key;
 
