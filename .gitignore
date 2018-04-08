@@ -4,3 +4,4 @@ node_modules
 coverage
 yarn*
 npm-debug.log
+test/front/dest/bundle.js
