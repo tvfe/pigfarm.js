@@ -1,3 +1,4 @@
+'use strict';
 var asyncDependency = require("../lib/asyncDependencies");
 var it = require("ava").test;
 var assert = require("assert");
