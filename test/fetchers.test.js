@@ -35,6 +35,6 @@ test('fetchers请求失败', async t => {
     await fetcher.error({});
 
   } catch (e) {
-    t.is(e.message, 'hehe');
+    t.is(e.message, 'datasource error failed:hehe');
   }
 });
