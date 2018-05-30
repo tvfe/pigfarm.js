@@ -46,7 +46,7 @@ var exportee = module.exports = function (config, option) {
 					reject(new Error('pigfarm timeout'));
 				}, option.timeout)
 			}
-			const contextParam = fetchContext || {};
+			var contextParam = fetchContext || {};
 
 			// 把静态数据复制一遍
 			var renderData = extend(contextParam, JSON.parse(JSON.stringify(_staticJSON)));
