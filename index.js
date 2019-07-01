@@ -78,21 +78,19 @@ var exportee = module.exports = function (config, option) {
 						return fetchers[key].call(self, extend({}, datas, contextParam))
 							.then(function (ret) {
 								ret = ret.data;
-								emitEvent(exportee, ['anyfetchsuccess', self, {
+								// 如果数据源返回空值，兼容成空对象
+								if (ret === void 0 || ret === null || ret === false) {
+									ret = {};
+								} 
+								emitEvent(exportee, ['anyfetchsuccess', ret, {
 									time: Date.now() - fetchersStart,
 									name: key
 								}]);
 
-								// 如果数据源返回空值，兼容成空对象
-								if (ret === void 0 || ret === null || ret === false) {
-									return {};
-
-								} else {
-									return ret;
-								}
+								return ret;
 							})
 							.catch(function (err) {
-								emitEvent(exportee, ['anyfetcherror', self, {
+								emitEvent(exportee, ['anyfetcherror', err, {
 									time: Date.now() - fetchersStart,
 									name: key
 								}]);
